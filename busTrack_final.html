@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusTracker - Real-time Bus Tracking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
+        .bus-icon {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .route-line {
+            background: linear-gradient(90deg, #3B82F6 0%, #10B981 50%, #F59E0B 100%);
+            height: 4px;
+            border-radius: 2px;
+            position: relative;
+        }
+        
+        .route-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: absolute;
+            top: -4px;
+            background: white;
+            border: 3px solid #3B82F6;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Page 1: Logo & Welcome -->
+    <div id="logoPage" class="page min-h-screen flex flex-col items-center justify-center p-6">
+        <div class="text-center fade-in">
+            <div class="mb-8">
+                <div class="w-32 h-32 mx-auto bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-2xl bus-icon">
+                    <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+                    </svg>
+                </div>
+                <h1 class="text-5xl font-bold text-gray-800 mb-4">BusTracker</h1>
+                <p class="text-xl text-gray-600 mb-8">Your smart companion for real-time bus tracking</p>
+            </div>
+            <button onclick="showSignInPage()" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                Get Started
+            </button>
+        </div>
+    </div>
+
+    <!-- Page 2: Sign In/Sign Up -->
+    <div id="signInPage" class="page hidden min-h-screen flex items-center justify-center p-6">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md fade-in">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 mx-auto bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800">Welcome Back</h2>
+                <p class="text-gray-600">Sign in to track your buses</p>
+            </div>
+            
+            <div id="signInForm">
+                <div class="space-y-4">
+                    <input type="email" placeholder="Email address" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                    <input type="password" placeholder="Password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                    <button onclick="showHomePage()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Sign In
+                    </button>
+                </div>
+                <div class="text-center mt-6">
+                    <p class="text-gray-600">Don't have an account? 
+                        <button onclick="showSignUpForm()" class="text-blue-600 font-semibold hover:underline">Sign Up</button>
+                    </p>
+                </div>
+            </div>
+            
+            <div id="signUpForm" class="hidden">
+                <div class="space-y-4">
+                    <input type="text" placeholder="Full Name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                    <input type="email" placeholder="Email address" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                    <input type="tel" placeholder="Phone Number" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                    <input type="password" placeholder="Password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                    <button onclick="showHomePage()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Create Account
+                    </button>
+                </div>
+                <div class="text-center mt-6">
+                    <p class="text-gray-600">Already have an account? 
+                        <button onclick="showSignInForm()" class="text-blue-600 font-semibold hover:underline">Sign In</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 3: Home Page -->
+    <div id="homePage" class="page hidden min-h-screen pb-20">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-b-3xl shadow-lg">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold">Good Morning!</h1>
+                    <p class="text-blue-100">Track your buses in real-time</p>
+                </div>
+                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-6 space-y-6">
+            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="showSearchPage()" class="bg-blue-50 p-4 rounded-xl text-center hover:bg-blue-100 transition-colors">
+                        <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                            </svg>
+                        </div>
+                        <p class="text-sm font-medium text-gray-700">Find Bus</p>
+                    </button>
+                    <button onclick="showChatbot()" class="bg-green-50 p-4 rounded-xl text-center hover:bg-green-100 transition-colors">
+                        <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                            </svg>
+                        </div>
+                        <p class="text-sm font-medium text-gray-700">Chat Help</p>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Routes</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-800">Downtown → Airport</p>
+                            <p class="text-sm text-gray-600">Bus #42 • 15 min ago</p>
+                        </div>
+                        <div class="text-green-600 text-sm font-medium">On Time</div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-800">Mall → University</p>
+                            <p class="text-sm text-gray-600">Bus #18 • 1 hour ago</p>
+                        </div>
+                        <div class="text-yellow-600 text-sm font-medium">5 min delay</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3">
+            <div class="flex justify-around">
+                <button onclick="showHomePage()" class="flex flex-col items-center py-2 text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Home</span>
+                </button>
+                <button onclick="showSearchPage()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Search</span>
+                </button>
+                <button onclick="showProfilePage()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Profile</span>
+                </button>
+                <button onclick="showChatbot()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Chat</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 4: Profile Page -->
+    <div id="profilePage" class="page hidden min-h-screen pb-20">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-b-3xl shadow-lg">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="showHomePage()" class="p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <h1 class="text-xl font-bold">Profile</h1>
+                <div class="w-10 h-10"></div>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold">John Doe</h2>
+                <p class="text-blue-100">john.doe@email.com</p>
+            </div>
+        </div>
+        
+        <div class="p-6 space-y-4">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-4 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-800">Account Settings</h3>
+                </div>
+                <div class="space-y-1">
+                    <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                </svg>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-medium text-gray-800">Verify Account</p>
+                                <p class="text-sm text-gray-600">Complete your profile verification</p>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </button>
+                    
+                    <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                </svg>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-medium text-gray-800">Edit Profile</p>
+                                <p class="text-sm text-gray-600">Update your personal information</p>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </button>
+                    
+                    <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                                </svg>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-medium text-gray-800">Privacy Settings</p>
+                                <p class="text-sm text-gray-600">Manage your privacy preferences</p>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-4 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-800">Preferences</h3>
+                </div>
+                <div class="space-y-1">
+                    <div class="flex items-center justify-between p-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                                </svg>
+                            </div>
+                            <div class="text-left">
+                                <p class="font-medium text-gray-800">Notifications</p>
+                                <p class="text-sm text-gray-600">Bus arrival alerts</p>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <input type="checkbox" checked class="sr-only">
+                            <div class="w-12 h-6 bg-blue-600 rounded-full shadow-inner"></div>
+                            <div class="absolute w-4 h-4 bg-white rounded-full shadow top-1 right-1 transition"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3">
+            <div class="flex justify-around">
+                <button onclick="showHomePage()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Home</span>
+                </button>
+                <button onclick="showSearchPage()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Search</span>
+                </button>
+                <button onclick="showProfilePage()" class="flex flex-col items-center py-2 text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Profile</span>
+                </button>
+                <button onclick="showChatbot()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Chat</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 5: Search Page -->
+    <div id="searchPage" class="page hidden min-h-screen pb-20">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-b-3xl shadow-lg">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="showHomePage()" class="p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <h1 class="text-xl font-bold">Find Your Bus</h1>
+                <div class="w-10 h-10"></div>
+            </div>
+        </div>
+        
+        <div class="p-6 space-y-6">
+            <!-- Search Tabs -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="flex">
+                    <button onclick="showRouteSearch()" id="routeTab" class="flex-1 py-4 px-6 bg-blue-600 text-white font-semibold">
+                        Search by Route
+                    </button>
+                    <button onclick="showBusNumberSearch()" id="busNumberTab" class="flex-1 py-4 px-6 bg-gray-100 text-gray-600 font-semibold">
+                        Search by Bus Number
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Route Search -->
+            <div id="routeSearchSection" class="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Search Route</h3>
+                <div class="space-y-4">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                        </div>
+                        <input type="text" placeholder="From (Current Location)" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                    </div>
+                    
+                    <div class="flex justify-center">
+                        <button class="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                        </div>
+                        <input type="text" placeholder="To (Destination)" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                    </div>
+                    
+                    <button onclick="showBusResults()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Search Buses
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Bus Number Search -->
+            <div id="busNumberSearchSection" class="bg-white rounded-2xl p-6 shadow-lg hidden">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Search by Bus Number</h3>
+                <div class="space-y-4">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+                            </svg>
+                        </div>
+                        <input type="text" placeholder="Enter Bus Number (e.g., 42, 18, 67)" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                    </div>
+                    
+                    <button onclick="showBusResults()" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Track This Bus
+                    </button>
+                    
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-blue-800">Quick Tip</p>
+                                <p class="text-sm text-blue-700">You can find the bus number on the front and sides of the bus, or on your bus pass.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Popular Routes</h3>
+                <div class="space-y-3">
+                    <button onclick="showBusResults()" class="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="text-left">
+                            <p class="font-medium text-gray-800">Downtown → Airport</p>
+                            <p class="text-sm text-gray-600">3 buses available</p>
+                        </div>
+                        <div class="text-blue-600 text-sm font-medium">25 min</div>
+                    </button>
+                    
+                    <button onclick="showBusResults()" class="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="text-left">
+                            <p class="font-medium text-gray-800">Mall → University</p>
+                            <p class="text-sm text-gray-600">2 buses available</p>
+                        </div>
+                        <div class="text-blue-600 text-sm font-medium">18 min</div>
+                    </button>
+                    
+                    <button onclick="showBusResults()" class="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="text-left">
+                            <p class="font-medium text-gray-800">Station → Beach</p>
+                            <p class="text-sm text-gray-600">4 buses available</p>
+                        </div>
+                        <div class="text-blue-600 text-sm font-medium">35 min</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3">
+            <div class="flex justify-around">
+                <button onclick="showHomePage()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Home</span>
+                </button>
+                <button onclick="showSearchPage()" class="flex flex-col items-center py-2 text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Search</span>
+                </button>
+                <button onclick="showProfilePage()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Profile</span>
+                </button>
+                <button onclick="showChatbot()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Chat</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 6: Bus Results -->
+    <div id="busResultsPage" class="page hidden min-h-screen pb-20">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-b-3xl shadow-lg">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="showSearchPage()" class="p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <h1 class="text-xl font-bold">Available Buses</h1>
+                <div class="w-10 h-10"></div>
+            </div>
+            
+            <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                        <span>Downtown</span>
+                    </div>
+                    <div class="flex-1 mx-4">
+                        <div class="route-line relative">
+                            <div class="route-dot" style="left: 0%;"></div>
+                            <div class="route-dot" style="left: 50%;"></div>
+                            <div class="route-dot" style="left: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <span>Airport</span>
+                        <div class="w-3 h-3 bg-red-400 rounded-full ml-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-6 space-y-4">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-800">Bus #42</h3>
+                                <p class="text-sm text-gray-600">Express Route</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-green-600">8 min</div>
+                            <div class="text-sm text-gray-600">Arriving</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">Scheduled Time:</span>
+                            <span class="font-medium">2:15 PM</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">Actual Time:</span>
+                            <span class="font-medium text-green-600">2:13 PM (2 min early)</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">Occupancy:</span>
+                            <span class="font-medium text-green-600">Low</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="showBusDetails()" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        View Route Map
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-800">Bus #18</h3>
+                                <p class="text-sm text-gray-600">Regular Route</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-blue-600">15 min</div>
+                            <div class="text-sm text-gray-600">Arriving</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">Scheduled Time:</span>
+                            <span class="font-medium">2:22 PM</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">Actual Time:</span>
+                            <span class="font-medium text-blue-600">2:22 PM (On time)</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">Occupancy:</span>
+                            <span class="font-medium text-green-600">Low</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="showBusDetails()" class="w-full mt-4 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                        View Route Map
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-800">Bus #67</h3>
+                                <p class="text-sm text-gray-600">Local Route</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold text-orange-600">28 min</div>
+                            <div class="text-sm text-gray-600">Arriving</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">Scheduled Time:</span>
+                            <span class="font-medium">2:35 PM</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">Actual Time:</span>
+                            <span class="font-medium text-orange-600">2:38 PM (3 min delay)</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600">Occupancy:</span>
+                            <span class="font-medium text-green-600">Low</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="showBusDetails()" class="w-full mt-4 bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+                        View Route Map
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3">
+            <div class="flex justify-around">
+                <button onclick="showHomePage()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Home</span>
+                </button>
+                <button onclick="showSearchPage()" class="flex flex-col items-center py-2 text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Search</span>
+                </button>
+                <button onclick="showProfilePage()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Profile</span>
+                </button>
+                <button onclick="showChatbot()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Chat</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 6: Route Map -->
+    <div id="routeMapPage" class="page hidden min-h-screen pb-20">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-b-3xl shadow-lg">
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="showBusResults()" class="p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+                <h1 class="text-xl font-bold">Bus #42 Route</h1>
+                <button onclick="toggleMapView()" class="p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold">8 min</div>
+                        <div class="text-sm opacity-90">Arriving</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-semibold">Express</div>
+                        <div class="text-sm opacity-90">Downtown → Airport</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-semibold">On Route</div>
+                        <div class="text-sm opacity-90">Status</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Interactive Map -->
+        <div class="p-6">
+            <gmp-map
+      center="43.4142989,-124.2301242"
+      zoom="4"
+      map-id="DEMO_MAP_ID"
+      style="height: 400px"
+    >
+      <gmp-advanced-marker
+        position="37.4220656,-122.0840897"
+        title="Mountain View, CA"
+      ></gmp-advanced-marker>
+      <gmp-advanced-marker
+        position="47.648994,-122.3503845"
+        title="Seattle, WA"
+      ></gmp-advanced-marker>
+    </gmp-map>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&libraries=maps,marker&v=beta"
+      defer
+    ></script>
+            </div>
+            
+            <!-- Stop Details -->
+            <div class="space-y-4">
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Next Stops</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg border-l-4 border-blue-600">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-blue-600 rounded-full mr-3 animate-pulse"></div>
+                                <div>
+                                    <p class="font-medium text-gray-800">University Station</p>
+                                    <p class="text-sm text-gray-600">Current location</p>
+                                </div>
+                            </div>
+                            <div class="text-blue-600 text-sm font-medium">Now</div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-gray-400 rounded-full mr-3"></div>
+                                <div>
+                                    <p class="font-medium text-gray-800">Terminal Plaza</p>
+                                    <p class="text-sm text-gray-600">Next stop</p>
+                                </div>
+                            </div>
+                            <div class="text-gray-600 text-sm font-medium">4 min</div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-gray-400 rounded-full mr-3"></div>
+                                <div>
+                                    <p class="font-medium text-gray-800">Airport Terminal</p>
+                                    <p class="text-sm text-gray-600">Final destination</p>
+                                </div>
+                            </div>
+                            <div class="text-gray-600 text-sm font-medium">8 min</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bus Information -->
+                <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Bus Information</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-3 bg-green-50 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600">32 km/h</div>
+                            <div class="text-sm text-gray-600">Current Speed</div>
+                        </div>
+                        <div class="text-center p-3 bg-blue-50 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600">45</div>
+                            <div class="text-sm text-gray-600">Tickets Available</div>
+                        </div>
+                        <div class="text-center p-3 bg-purple-50 rounded-lg">
+                            <div class="text-2xl font-bold text-purple-600">2 min</div>
+                            <div class="text-sm text-gray-600">Early</div>
+                        </div>
+                        <div class="text-center p-3 bg-orange-50 rounded-lg">
+                            <div class="text-2xl font-bold text-orange-600">WiFi</div>
+                            <div class="text-sm text-gray-600">Available</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3">
+            <div class="flex justify-around">
+                <button onclick="showHomePage()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Home</span>
+                </button>
+                <button onclick="showSearchPage()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Search</span>
+                </button>
+                <button onclick="showProfilePage()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Profile</span>
+                </button>
+                <button onclick="showChatbot()" class="flex flex-col items-center py-2 text-gray-400 hover:text-blue-600">
+                    <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                    </svg>
+                    <span class="text-xs font-medium">Chat</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Modal -->
+    <div id="chatbotModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-end justify-center min-h-screen">
+            <div class="bg-white rounded-t-3xl w-full max-w-md h-96 slide-up">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-800">Bus Assistant</h3>
+                        <button onclick="hideChatbot()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6 h-64 overflow-y-auto">
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                                </svg>
+                            </div>
+                            <div class="bg-gray-100 rounded-lg p-3 max-w-xs">
+                                <p class="text-sm text-gray-800">Hi! I'm your bus assistant. How can I help you today?</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <div class="bg-blue-600 text-white rounded-lg p-3 max-w-xs">
+                                <p class="text-sm">When is the next bus to downtown?</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                                </svg>
+                            </div>
+                            <div class="bg-gray-100 rounded-lg p-3 max-w-xs">
+                                <p class="text-sm text-gray-800">The next bus to downtown is Bus #42, arriving in 8 minutes at 2:13 PM. Would you like me to show you the route?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4 border-t border-gray-200">
+                    <div class="flex items-center space-x-2">
+                        <input type="text" placeholder="Type your message..." class="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+                        <button class="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Page navigation functions
+        function showPage(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.add('hidden'));
+            
+            // Show selected page
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        function showSignInPage() {
+            showPage('signInPage');
+        }
+
+        function showHomePage() {
+            showPage('homePage');
+        }
+
+        function showProfilePage() {
+            showPage('profilePage');
+        }
+
+        function showSearchPage() {
+            showPage('searchPage');
+        }
+
+        function showBusResults() {
+            showPage('busResultsPage');
+        }
+
+        function showBusDetails() {
+            showPage('routeMapPage');
+        }
+        
+        function showRouteMap() {
+            showPage('routeMapPage');
+        }
+        
+        function toggleMapView() {
+            // Toggle between satellite and street view
+            alert('Map view toggled! In a real app, this would switch between satellite and street view.');
+        }
+
+        // Sign in/up form toggle
+        function showSignUpForm() {
+            document.getElementById('signInForm').classList.add('hidden');
+            document.getElementById('signUpForm').classList.remove('hidden');
+        }
+
+        function showSignInForm() {
+            document.getElementById('signUpForm').classList.add('hidden');
+            document.getElementById('signInForm').classList.remove('hidden');
+        }
+
+        // Chatbot functions
+        function showChatbot() {
+            document.getElementById('chatbotModal').classList.remove('hidden');
+        }
+
+        function hideChatbot() {
+            document.getElementById('chatbotModal').classList.add('hidden');
+        }
+
+        // Search tab functions
+        function showRouteSearch() {
+            document.getElementById('routeTab').className = 'flex-1 py-4 px-6 bg-blue-600 text-white font-semibold';
+            document.getElementById('busNumberTab').className = 'flex-1 py-4 px-6 bg-gray-100 text-gray-600 font-semibold';
+            document.getElementById('routeSearchSection').classList.remove('hidden');
+            document.getElementById('busNumberSearchSection').classList.add('hidden');
+        }
+
+        function showBusNumberSearch() {
+            document.getElementById('routeTab').className = 'flex-1 py-4 px-6 bg-gray-100 text-gray-600 font-semibold';
+            document.getElementById('busNumberTab').className = 'flex-1 py-4 px-6 bg-green-600 text-white font-semibold';
+            document.getElementById('routeSearchSection').classList.add('hidden');
+            document.getElementById('busNumberSearchSection').classList.remove('hidden');
+        }
+
+        // Bus animation
+        function animateBus() {
+            const bus = document.getElementById('movingBus');
+            if (bus) {
+                let position = 180;
+                const animate = () => {
+                    position += 0.5;
+                    if (position > 380) position = 20;
+                    bus.setAttribute('transform', `translate(${position}, 160)`);
+                    requestAnimationFrame(animate);
+                };
+                animate();
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Start with logo page
+            showPage('logoPage');
+            
+            // Start bus animation
+            setTimeout(animateBus, 1000);
+            
+            // Auto-advance from logo page after 3 seconds (optional)
+            setTimeout(() => {
+                // Uncomment the line below if you want auto-advance
+                // showSignInPage();
+            }, 3000);
+        });
+
+        // Close chatbot when clicking outside
+        document.getElementById('chatbotModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideChatbot();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e0c902b571c628',t:'MTc1NzY5NDU4Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
